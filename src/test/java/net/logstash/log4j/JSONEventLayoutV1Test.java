@@ -291,4 +291,35 @@ public class JSONEventLayoutV1Test {
         long timestamp = 1364844991207L;
         Assert.assertEquals("format does not produce expected output", "2013-04-01T19:36:31.207Z", JSONEventLayoutV1.dateFormat(timestamp));
     }
+
+    @Test
+    public void testTruncateFieldMaxLength(){
+        JSONEventLayoutV1 layout = (JSONEventLayoutV1) appender.getLayout();
+        int prevFieldMaxLength = layout.getFieldMaxLength();
+
+        layout.setFieldMaxLength(5);
+
+        logger.warn("The quick brown fox jumps over the lazy dog");
+        String payload = appender.getMessages()[0];
+        Object obj = JSONValue.parse(payload);
+        JSONObject jsonObject = (JSONObject) obj;
+        String message = (String)jsonObject.get("message");
+        Assert.assertEquals("Field length exceeds the maximum set", Math.min(message.length(), 5), message.length());
+
+
+        appender.clear();
+        appender.close();
+
+
+        layout.setFieldMaxLength(50);
+
+        logger.warn("The quick brown fox jumps over the lazy dog");
+        payload = appender.getMessages()[0];
+        obj = JSONValue.parse(payload);
+        jsonObject = (JSONObject) obj;
+        message = (String)jsonObject.get("message");
+        Assert.assertEquals("Field length does not match the actual string", Math.min(message.length(), 50), message.length());
+
+        layout.setFieldMaxLength(prevFieldMaxLength);
+    }
 }

@@ -18,6 +18,7 @@ public class JSONEventLayoutV1 extends Layout {
 
     private boolean locationInfo = false;
     private String customUserFields;
+    private int fieldMaxLength = 30720;
 
     private boolean ignoreThrowable = false;
 
@@ -103,7 +104,7 @@ public class JSONEventLayoutV1 extends Layout {
          * Now we start injecting our own stuff.
          */
         logstashEvent.put("source_host", hostname);
-        logstashEvent.put("message", loggingEvent.getRenderedMessage());
+        logstashEvent.put("message", truncateString(loggingEvent.getRenderedMessage()));
 
         if (loggingEvent.getThrowableInformation() != null) {
             final ThrowableInformation throwableInformation = loggingEvent.getThrowableInformation();
@@ -115,7 +116,7 @@ public class JSONEventLayoutV1 extends Layout {
             }
             if (throwableInformation.getThrowableStrRep() != null) {
                 String stackTrace = StringUtils.join(throwableInformation.getThrowableStrRep(), "\n");
-                exceptionInformation.put("stacktrace", stackTrace);
+                exceptionInformation.put("stacktrace", truncateString(stackTrace));
             }
             addEventData("exception", exceptionInformation);
         }
@@ -157,6 +158,19 @@ public class JSONEventLayoutV1 extends Layout {
      */
     public void setLocationInfo(boolean locationInfo) {
         this.locationInfo = locationInfo;
+    }
+
+
+    public int getFieldMaxLength() {
+        return this.fieldMaxLength;
+    }
+
+    public void setFieldMaxLength(int maxLength){
+        this.fieldMaxLength = maxLength;
+    }
+
+    private String truncateString(String strInput){
+        return strInput.substring(0, Math.min(strInput.length(), this.fieldMaxLength));
     }
 
     public String getUserFields() { return customUserFields; }
