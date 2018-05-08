@@ -29,7 +29,6 @@ public class JSONEventLayoutV1 extends Layout {
     private String ndc;
     private Map mdc;
     private LocationInfo info;
-    private HashMap<String, Object> exceptionInformation;
     private static Integer version = 1;
 
 
@@ -63,7 +62,6 @@ public class JSONEventLayoutV1 extends Layout {
     public String format(LoggingEvent loggingEvent) {
         threadName = loggingEvent.getThreadName();
         timestamp = loggingEvent.getTimeStamp();
-        exceptionInformation = new HashMap<String, Object>();
         mdc = loggingEvent.getProperties();
         ndc = loggingEvent.getNDC();
 
@@ -103,22 +101,15 @@ public class JSONEventLayoutV1 extends Layout {
         /**
          * Now we start injecting our own stuff.
          */
-        logstashEvent.put("source_host", hostname);
+        logstashEvent.put("hostname", hostname);
         logstashEvent.put("message", truncateString(loggingEvent.getRenderedMessage()));
 
         if (loggingEvent.getThrowableInformation() != null) {
             final ThrowableInformation throwableInformation = loggingEvent.getThrowableInformation();
-            if (throwableInformation.getThrowable().getClass().getCanonicalName() != null) {
-                exceptionInformation.put("exception_class", throwableInformation.getThrowable().getClass().getCanonicalName());
-            }
-            if (throwableInformation.getThrowable().getMessage() != null) {
-                exceptionInformation.put("exception_message", throwableInformation.getThrowable().getMessage());
-            }
             if (throwableInformation.getThrowableStrRep() != null) {
                 String stackTrace = StringUtils.join(throwableInformation.getThrowableStrRep(), "\n");
-                exceptionInformation.put("stacktrace", truncateString(stackTrace));
+                addEventData("stacktrace", truncateString(stackTrace));
             }
-            addEventData("exception", exceptionInformation);
         }
 
         if (locationInfo) {

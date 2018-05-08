@@ -32,7 +32,7 @@ public class JSONEventLayoutV1Test {
 
     static final String[] logstashFields = new String[]{
             "message",
-            "source_host",
+            "hostname",
             "@timestamp",
             "@version"
     };
@@ -191,10 +191,39 @@ public class JSONEventLayoutV1Test {
         String message = appender.getMessages()[0];
         Object obj = JSONValue.parse(message);
         JSONObject jsonObject = (JSONObject) obj;
-        JSONObject exceptionInformation = (JSONObject) jsonObject.get("exception");
-
-        Assert.assertEquals("Exception class missing", "java.lang.IllegalArgumentException", exceptionInformation.get("exception_class"));
-        Assert.assertEquals("Exception exception message", exceptionMessage, exceptionInformation.get("exception_message"));
+        String stacktrace = (String)jsonObject.get("stacktrace");
+        Assert.assertEquals("java.lang.IllegalArgumentException: shits on fire, yo\n" +
+                "\tat net.logstash.log4j.JSONEventLayoutV1Test.testJSONEventLayoutExceptions(JSONEventLayoutV1Test.java:190)\n" +
+                "\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+                "\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+                "\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+                "\tat java.lang.reflect.Method.invoke(Method.java:498)\n" +
+                "\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:44)\n" +
+                "\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:15)\n" +
+                "\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:41)\n" +
+                "\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:20)\n" +
+                "\tat org.junit.internal.runners.statements.RunAfters.evaluate(RunAfters.java:31)\n" +
+                "\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:76)\n" +
+                "\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)\n" +
+                "\tat org.junit.runners.ParentRunner$3.run(ParentRunner.java:193)\n" +
+                "\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:52)\n" +
+                "\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:191)\n" +
+                "\tat org.junit.runners.ParentRunner.access$000(ParentRunner.java:42)\n" +
+                "\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:184)\n" +
+                "\tat org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:28)\n" +
+                "\tat org.junit.runners.ParentRunner.run(ParentRunner.java:236)\n" +
+                "\tat org.apache.maven.surefire.junit4.JUnit4Provider.execute(JUnit4Provider.java:252)\n" +
+                "\tat org.apache.maven.surefire.junit4.JUnit4Provider.executeTestSet(JUnit4Provider.java:141)\n" +
+                "\tat org.apache.maven.surefire.junit4.JUnit4Provider.invoke(JUnit4Provider.java:112)\n" +
+                "\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n" +
+                "\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n" +
+                "\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n" +
+                "\tat java.lang.reflect.Method.invoke(Method.java:498)\n" +
+                "\tat org.apache.maven.surefire.util.ReflectionUtils.invokeMethodWithArray(ReflectionUtils.java:189)\n" +
+                "\tat org.apache.maven.surefire.booter.ProviderFactory$ProviderProxy.invoke(ProviderFactory.java:165)\n" +
+                "\tat org.apache.maven.surefire.booter.ProviderFactory.invokeProvider(ProviderFactory.java:85)\n" +
+                "\tat org.apache.maven.surefire.booter.ForkedBooter.runSuitesInProcess(ForkedBooter.java:115)\n" +
+                "\tat org.apache.maven.surefire.booter.ForkedBooter.main(ForkedBooter.java:75)", stacktrace);
     }
 
     @Test
