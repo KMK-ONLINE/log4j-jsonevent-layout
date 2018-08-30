@@ -23,7 +23,7 @@ public class JSONEventLayoutV1 extends Layout {
     private boolean ignoreThrowable = false;
 
     private boolean activeIgnoreThrowable = ignoreThrowable;
-    private String hostname = new HostData().getHostName();
+    private String hostname = new HostData().getHostName().split("\\.")[0];
     private String threadName;
     private long timestamp;
     private String ndc;
